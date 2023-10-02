@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html>
+{% extends "polls/base.html" %}
+{% block title %} {{ task.Task_ID }} {% endblock %}
+{% block content %}
+    <head>
+        <link rel="stylesheet" href="/static/stylesheets/main_style.css">
+        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+        <style>
+            .center-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                z-index: -999;
+            }
+
+            /* Container with padding */
+            .container-with-padding {
+                padding: 40px;
+                background-color: #2b2e38;
+                border-radius: 6px;
+                max-width: 100%;
+                position: fixed;
+                display: inline;
+                margin: 20px; /* Add margin to separate containers */
+            }
+        </style>
+    </head>
+    <body>
+    <div class="center-container">
+        <div class="container-with-padding">
+            <a href="/logout" class="btn inline-items">
+                <i class="uil uil-signout" style="font-size: 16px;"></i>
+                Logout
+            </a>
+            <a href="/display" class="btn inline-items">
+                <i class="uil uil-home" style="font-size: 16px;"></i>
+                Home
+            </a>
+            <h4>{{ task.Task_ID }}</h4>
+            <h4>{{ task.Alias_Assigned }}</h4>
+            <h4>{{ task.Progress }}</h4>
+            <h4>{{ task.Title }}</h4>
+            <h4>{{ task.Desc }}</h4>
+            <a href="create_comment" class="btn" style="padding: 0 5px 0 5px;">
+                <i class="uil uil-comment-add" style="font-size: 25px;"></i>
+            </a>
+        </div>
+        {% if comments %}
+            {% for comment in comments %}
+                <!-- Add another container around comments -->
+                <div class="container-with-padding">
+                    <h4>{{ comment.Alias_Written }}</h4>
+                    <p>{{ comment.Comment }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No comments available.</p>
+        {% endif %}
+    </div>
+
+    <p>Done</p>
+    </body>
+{% endblock %}
+</html>
