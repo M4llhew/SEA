@@ -1,11 +1,9 @@
 import json
-import re
 
 from django import forms
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -24,84 +22,83 @@ class LoginForm(forms.ModelForm):
         model = CustomerUser
         fields = ['username', 'password']
 
-    def clean_password(self):
+    def clean(self):
         password = self.cleaned_data.get('password')
         username = self.cleaned_data.get('username')
-        try:
-            user = CustomerUser.objects.get(username=username)
-        except CustomerUser.DoesNotExist:
-            raise forms.ValidationError("Username not found.")
+        user = authenticate(username=username, password=password)
 
         if not user or not user.is_active:
-            raise forms.ValidationError("Invalid password.")
-
-        if not user.check_password(password):
-            raise forms.ValidationError("Invalid password.")
+            raise forms.ValidationError("Invalid username or password.")
 
         return self.cleaned_data
+
+    # class UserForm(forms.ModelForm):
+
+
+#     class Meta:
+#         model = CustomerUser
+#         fields = ['first_name', 'last_name', 'username', 'password']
+#
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         missing_fields = []
+#         # Check if any of the required fields are empty
+#         for field_name, field_value in cleaned_data.items():
+#             if not field_value:
+#                 missing_fields.append(field_name)
+#
+#             # Add errors for missing fields
+#         for field_name in missing_fields:
+#             self.add_error(field_name, "This field is required.")
+#
+#         return cleaned_data
+#
+#     def clean_password(self):
+#         password = self.cleaned_data.get('password')
+#         errorMessage = "Password must"
+#
+#         # Check for minimum length
+#         if len(password) < 8:
+#             errorMessage += " be at least 8 characters long"
+#         # Check for at least one digit
+#         if not any(char.isdigit() for char in password):
+#             errorMessage += "contain at least one digit"
+#         # Check for at least one special character (non-alphanumeric)
+#         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+#             errorMessage += " contain at least one special character '!@#$%^&*(),.?:{}|<>'"
+#         # Check for at least one uppercase letter
+#         if not any(char.isupper() for char in password):
+#             errorMessage += " contain at least one uppercase letter"
+#         if errorMessage != "Password must":
+#             raise forms.ValidationError(errorMessage)
+#         return make_password(password)
 
 
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        print("2")
+        print("21")
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-
-            # Redirect to a success page or home page
-            return redirect('polls:display')
-            # Handle invalid login credentials
-            # error_message = "Invalid username or password."
-
+            print("33")
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            print(username, password, "5")
+            user = authenticate(username=username, password=password)
+            print(user, "6")
+            if user is not None:
+                login(request, user)
+                # Redirect to a success page or home page
+                return redirect('polls:display')
+            else:
+                print("31")
+                messages.error(request, "Invalid username or password.")
         else:
-            print("3")
+            print("32")
             for field, errors in form.errors.items():
                 for error in errors:
-                    print(error)
+                    print(error, "4")
                     messages.error(request, f'Error in {field}: {error}')
     return render(request, 'polls/Login.html')
-
-
-class UserForm(forms.ModelForm):
-    class Meta:
-        model = CustomerUser
-        fields = ['first_name', 'last_name', 'username', 'password']
-
-    def clean(self):
-        cleaned_data = super().clean()
-        missing_fields = []
-        # Check if any of the required fields are empty
-        for field_name, field_value in cleaned_data.items():
-            if not field_value:
-                missing_fields.append(field_name)
-
-            # Add errors for missing fields
-        for field_name in missing_fields:
-            self.add_error(field_name, "This field is required.")
-
-        return cleaned_data
-
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
-        errorMessage = "Password must"
-
-        # Check for minimum length
-        if len(password) < 8:
-            errorMessage += " be at least 8 characters long"
-        # Check for at least one digit
-        if not any(char.isdigit() for char in password):
-            errorMessage += "contain at least one digit"
-        # Check for at least one special character (non-alphanumeric)
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            errorMessage += " contain at least one special character '!@#$%^&*(),.?:{}|<>'"
-        # Check for at least one uppercase letter
-        if not any(char.isupper() for char in password):
-            errorMessage += " contain at least one uppercase letter"
-        if errorMessage != "Password must":
-            raise forms.ValidationError(errorMessage)
-
-        return make_password(password)
 
 
 def create_comment_form(request, task_id):
