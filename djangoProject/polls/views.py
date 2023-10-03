@@ -32,46 +32,45 @@ class LoginForm(forms.ModelForm):
 
         return self.cleaned_data
 
-    # class UserForm(forms.ModelForm):
 
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = CustomerUser
+        fields = ['first_name', 'last_name', 'username', 'password']
 
-#     class Meta:
-#         model = CustomerUser
-#         fields = ['first_name', 'last_name', 'username', 'password']
-#
-#     def clean(self):
-#         cleaned_data = super().clean()
-#         missing_fields = []
-#         # Check if any of the required fields are empty
-#         for field_name, field_value in cleaned_data.items():
-#             if not field_value:
-#                 missing_fields.append(field_name)
-#
-#             # Add errors for missing fields
-#         for field_name in missing_fields:
-#             self.add_error(field_name, "This field is required.")
-#
-#         return cleaned_data
-#
-#     def clean_password(self):
-#         password = self.cleaned_data.get('password')
-#         errorMessage = "Password must"
-#
-#         # Check for minimum length
-#         if len(password) < 8:
-#             errorMessage += " be at least 8 characters long"
-#         # Check for at least one digit
-#         if not any(char.isdigit() for char in password):
-#             errorMessage += "contain at least one digit"
-#         # Check for at least one special character (non-alphanumeric)
-#         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-#             errorMessage += " contain at least one special character '!@#$%^&*(),.?:{}|<>'"
-#         # Check for at least one uppercase letter
-#         if not any(char.isupper() for char in password):
-#             errorMessage += " contain at least one uppercase letter"
-#         if errorMessage != "Password must":
-#             raise forms.ValidationError(errorMessage)
-#         return make_password(password)
+    def clean(self):
+        cleaned_data = super().clean()
+        missing_fields = []
+        # Check if any of the required fields are empty
+        for field_name, field_value in cleaned_data.items():
+            if not field_value:
+                missing_fields.append(field_name)
+
+            # Add errors for missing fields
+        for field_name in missing_fields:
+            self.add_error(field_name, "This field is required.")
+
+        return cleaned_data
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        errorMessage = "Password must"
+
+        # Check for minimum length
+        if len(password) < 8:
+            errorMessage += " be at least 8 characters long"
+        # Check for at least one digit
+        if not any(char.isdigit() for char in password):
+            errorMessage += "contain at least one digit"
+        # Check for at least one special character (non-alphanumeric)
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            errorMessage += " contain at least one special character '!@#$%^&*(),.?:{}|<>'"
+        # Check for at least one uppercase letter
+        if not any(char.isupper() for char in password):
+            errorMessage += " contain at least one uppercase letter"
+        if errorMessage != "Password must":
+            raise forms.ValidationError(errorMessage)
+        return make_password(password)
 
 
 def login_view(request):
