@@ -1,26 +1,11 @@
-# class IndexView(generic.ListView):
-#     template_name = "polls/index.html"
-#     context_object_name = "latest_question_list"
-#
-#     def get_queryset(self):
-#         """Return the last five published questions."""
-#         return Question.objects.order_by("-pub_date")[:5]
-#
-#
-# class DetailView(generic.DetailView):
-#     model = Question
-#     template_name = "polls/detail.html"
-#
-#
-# class ResultsView(generic.DetailView):
-#     model = Question
-#     template_name = "polls/results.html"
 import json
+import re
 
 from django import forms
-from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -34,38 +19,48 @@ class TaskForm(forms.ModelForm):
         fields = ['Desc', 'Alias_Assigned', 'Title', 'Progress']
 
 
-from django import forms
-
-
-class LoginForm(forms.Form):
+class LoginForm(forms.ModelForm):
     class Meta:
         model = CustomerUser
         fields = ['username', 'password']
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        username = self.cleaned_data.get('username')
+        try:
+            user = CustomerUser.objects.get(username=username)
+        except CustomerUser.DoesNotExist:
+            raise forms.ValidationError("Username not found.")
+
+        if not user or not user.is_active:
+            raise forms.ValidationError("Invalid password.")
+
+        if not user.check_password(password):
+            raise forms.ValidationError("Invalid password.")
+
+        return self.cleaned_data
 
 
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
+        print("2")
         if form.is_valid():
-            username = form.data.get('username')
-            password = form.data.get('password')
-            print(username, password)
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                # Redirect to a success page or home page
-                return redirect('polls:display')
-            else:
-                # Handle invalid login credentials
-                error_message = "Invalid username or password."
-        else:
-            # Handle form errors
-            error_message = "Invalid form data."
-    else:
-        form = AuthenticationForm()
-        error_message = None
+            user = form.get_user()
+            login(request, user)
 
-    return render(request, 'polls/Login.html', {'form': form, 'error_message': error_message})
+            # Redirect to a success page or home page
+            return redirect('polls:display')
+            # Handle invalid login credentials
+            # error_message = "Invalid username or password."
+
+        else:
+            print("3")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(error)
+                    messages.error(request, f'Error in {field}: {error}')
+    return render(request, 'polls/Login.html')
 
 
 class UserForm(forms.ModelForm):
@@ -73,17 +68,99 @@ class UserForm(forms.ModelForm):
         model = CustomerUser
         fields = ['first_name', 'last_name', 'username', 'password']
 
+    def clean(self):
+        cleaned_data = super().clean()
+        missing_fields = []
+        # Check if any of the required fields are empty
+        for field_name, field_value in cleaned_data.items():
+            if not field_value:
+                missing_fields.append(field_name)
 
-def user_create(request):
+            # Add errors for missing fields
+        for field_name in missing_fields:
+            self.add_error(field_name, "This field is required.")
+
+        return cleaned_data
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        errorMessage = "Password must"
+
+        # Check for minimum length
+        if len(password) < 8:
+            errorMessage += " be at least 8 characters long"
+        # Check for at least one digit
+        if not any(char.isdigit() for char in password):
+            errorMessage += "contain at least one digit"
+        # Check for at least one special character (non-alphanumeric)
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            errorMessage += " contain at least one special character '!@#$%^&*(),.?:{}|<>'"
+        # Check for at least one uppercase letter
+        if not any(char.isupper() for char in password):
+            errorMessage += " contain at least one uppercase letter"
+        if errorMessage != "Password must":
+            raise forms.ValidationError(errorMessage)
+
+        return make_password(password)
+
+
+def create_comment_form(request, task_id):
     if request.method == "POST":
-        form = UserForm(request.POST)
+        form = CommentForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('polls:Login')
+            comment = form.save(commit=False)
+            comment.Alias_Written = request.user
+            comment.Task_ID = Task.objects.get(Task_ID=task_id)
+            comment.save()
+            return redirect('polls:display')
         else:
             error_messages = form.errors.as_json()
             return JsonResponse({'error': error_messages}, status=400)
+    task = Task.objects.get(Task_ID=task_id)
+    return render(request, "polls/comment.html", {'task': task})
+
+
+@login_required
+def task_create(request):
+    if request.method == "POST":
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('polls:display')
+        else:
+            # Handle validation errors
+            error_messages = form.errors.as_json()
+            return JsonResponse({'error': error_messages}, status=400)
+
     return JsonResponse({'error': 'Unsupported method'}, status=405)
+
+
+def user_create(request):
+    # errorMessage = ""
+    print("1")
+    if request.method == "POST":
+        print("2")
+        form = UserForm(request.POST)
+        print("3")
+
+        if form.is_valid():
+            print("4")
+            user = form.save(commit=False)
+
+            print("5")
+            user.password = form.cleaned_data['password']
+            print("6")
+            print(user)
+            user.save()
+            print("7")
+            messages.success(request, 'Registration Successful')
+            print("8")
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error in {field}: {error}')
+    return render(request, 'polls/Login.html')
+    # return render(request, "polls:Login")
 
 
 def logout_view(request):
@@ -164,37 +241,6 @@ class CommentForm(forms.ModelForm):
         fields = ('Comment',)
 
 
-def create_comment_form(request, task_id):
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.Alias_Written = request.user
-            comment.Task_ID = Task.objects.get(Task_ID=task_id)
-            comment.save()
-            return redirect('polls:display')
-        else:
-            error_messages = form.errors.as_json()
-            return JsonResponse({'error': error_messages}, status=400)
-    task = Task.objects.get(Task_ID=task_id)
-    return render(request, "polls/comment.html", {'task': task})
-
-
-@login_required
-def task_create(request):
-    if request.method == "POST":
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('polls:display')
-        else:
-            # Handle validation errors
-            error_messages = form.errors.as_json()
-            return JsonResponse({'error': error_messages}, status=400)
-
-    return JsonResponse({'error': 'Unsupported method'}, status=405)
-
-
 @login_required
 @csrf_exempt
 def update_progress(request):
@@ -230,67 +276,3 @@ def update_task(request, task_id):
         return redirect('polls:display')  # Redirect to a task list view
 
     return render(request, 'update_task.html', {'task': task})
-# def profile(request, pk):
-#     profile = Profile.objects.get(pk=pk)
-#     if request.method == "POST":
-#         current_user_profile = request.user.profile
-#         data = request.POST
-#         action = data.get("follow")
-#         if action == "follow":
-#             current_user_profile.follows.add(profile)
-#         elif action == "unfollow":
-#             current_user_profile.follows.remove(profile)
-#         current_user_profile.save()
-#     return render(request, "dwitter/profile.html", {"profile": profile})
-
-# def DisplayAllCodeReviews(request):
-#     formatted_crs = []
-#     crs = CodeReview.objects.all()
-#     for cr in crs:
-#         listItem = [cr.cr_number, cr.alias, cr.package_name, cr.approved]  # Also needs the number of revisions
-#         formatted_crs.append(listItem)
-#     return render(request, 'polls/displayCRs.html')
-
-#
-# @csrf_exempt
-# def update_employee_number(request):
-#     print("TEST")
-#     if request.method == 'POST':
-#         print("TEST3")
-#         alias = request.POST.get('alias')
-#         print(alias, "WDWAD")
-#         try:
-#             user = User.objects.get(alias=alias)
-#             user.employee_number += 1
-#             user.save()
-#
-#             print("DONE")
-#             time.sleep(4)
-#             print("DONE")
-#             return JsonResponse({'reload_page': True})
-#         except:
-#             return JsonResponse({'error': 'Not a User'}, status=400)
-#     else:
-#         return JsonResponse({'error': 'Not a Post'}, status=400)
-
-# def vote(request, question_id):
-#     question = get_object_or_404(Question, pk=question_id)
-#     try:
-#         selected_choice = question.choice_set.get(pk=request.POST["choice"])
-#     except (KeyError, Choice.DoesNotExist):
-#         # Redisplay the question voting form.
-#         return render(
-#             request,
-#             "polls/detail.html",
-#             {
-#                 "question": question,
-#                 "error_message": "You didn't select a choice.",
-#             },
-#         )
-#     else:
-#         selected_choice.votes += 1
-#         selected_choice.save()
-#         # Always return an HttpResponseRedirect after successfully dealing
-#         # with POST data. This prevents data from being posted twice if a
-#         # user hits the Back button.
-#         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))

@@ -22,6 +22,8 @@
     <orderEntry type="library" name="jquery-3.6.0" level="application" />
     <orderEntry type="library" name="unicons" level="application" />
     <orderEntry type="library" name="line" level="application" />
+    <orderEntry type="library" name="toastr.js" level="application" />
+    <orderEntry type="library" name="jquery-3.6.0" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />

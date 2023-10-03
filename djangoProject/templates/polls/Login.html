@@ -11,22 +11,72 @@
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="/static/stylesheets/main_style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+            .messages {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 9999;
+            }
+
+            .messages ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .messages li {
+                padding: 10px;
+                width: 100%;
+                text-align: center;
+                color: white;
+            }
+
+            .success {
+                background-color: #4CAF50;
+            }
+
+            .error {
+                background-color: #f44336;
+            }
+
+        </style>
     </head>
     <body>
-    {#<div id="stars-container">#}
-    {#    <script src="/static/javascript/stars.js"></script>#}
-    {#</div>#}
     <div class="section">
         <div class="container">
             <div class="row full-height justify-content-center">
                 <div class="col-12 text-center align-self-center py-5">
                     <div class="section pb-5 pt-5 pt-sm-2 text-center">
+                        {% if messages %}
+                            <div class="messages">
+                                <ul class="messages-list">
+                                    {% for message in messages %}
+                                        <li{% if message.tags %}
+                                            class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <script>
+                                // jQuery code to hide messages after a timeout
+                                $(document).ready(function () {
+                                    setTimeout(function () {
+                                        $('.messages').fadeOut('slow');
+                                    }, 7500); // Adjust the timeout duration in milliseconds (10000ms = 10 seconds)
+                                });
+                            </script>
+                        {% endif %}
                         <h6 class="mb-0 pb-3"><span>Log In </span><span>Sign Up</span></h6>
                         <input class="checkbox" type="checkbox" id="reg-log" name="reg-log"/>
                         <label for="reg-log"></label>
                         <div class="card-3d-wrap mx-auto">
                             <div class="card-3d-wrapper">
                                 <div class="card-front">
+
                                     <div class="center-wrap">
                                         <div class="section text-center">
                                             <h4 class="mb-4 pb-3">Log In</h4>
@@ -36,7 +86,7 @@
                                                     <input type="text" class="form-style" placeholder="Username"
                                                            name="username">
                                                     <i class="input-icon uil uil-user"></i>
-                                                    
+
                                                 </div>
                                                 <div class="form-group mt-2">
                                                     <input type="password" class="form-style" placeholder="Password"
