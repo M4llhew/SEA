@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 {% extends "polls/base.html" %}
 {% block title %} {{ task.Task_ID }} {% endblock %}
@@ -13,8 +12,9 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                min-height: 100vh;
-                z-index: -999;
+                max-height: 100vh;
+                flex-direction: column;
+                overflow-y: auto;
             }
 
             /* Container with padding */
@@ -23,9 +23,17 @@
                 background-color: #2b2e38;
                 border-radius: 6px;
                 max-width: 100%;
-                position: fixed;
-                display: inline;
+                width: 600px;
                 margin: 20px; /* Add margin to separate containers */
+            }
+
+            .comments-container {
+                max-height: 60vh; /* Adjust the maximum height for comments */
+                overflow-y: auto;
+            }
+
+            .btn {
+                padding: 0 10px 0 10px;
             }
         </style>
     </head>
@@ -40,29 +48,31 @@
                 <i class="uil uil-home" style="font-size: 16px;"></i>
                 Home
             </a>
-            <h4>{{ task.Task_ID }}</h4>
-            <h4>{{ task.Alias_Assigned }}</h4>
-            <h4>{{ task.Progress }}</h4>
-            <h4>{{ task.Title }}</h4>
-            <h4>{{ task.Desc }}</h4>
-            <a href="create_comment" class="btn" style="padding: 0 5px 0 5px;">
+            <h5 class="float-right inline-items pt-2">{{ task.Alias_Assigned }} - {{ task.Progress }}</h5>
+
+            <h4 class="mt-3">{{ task.Task_ID }} - {{ task.Title }}</h4>
+            <h5>{{ task.Desc }}</h5>
+
+
+            <a href="create_comment" class="btn float-right" style="padding: 0 5px 0 5px;">
                 <i class="uil uil-comment-add" style="font-size: 25px;"></i>
             </a>
         </div>
-        {% if comments %}
-            {% for comment in comments %}
-                <!-- Add another container around comments -->
-                <div class="container-with-padding">
-                    <h4>{{ comment.Alias_Written }}</h4>
-                    <p>{{ comment.Comment }}</p>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No comments available.</p>
-        {% endif %}
-    </div>
 
-    <p>Done</p>
+        <div class="comments-container">
+            {% if comments %}
+                {% for comment in comments %}
+                    <!-- Add another container around comments -->
+                    <div class="container-with-padding">
+                        <h4>{{ comment.Alias_Written }}</h4>
+                        <p>{{ comment.Comment }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments.</p>
+            {% endif %}
+        </div>
+    </div>
     </body>
 {% endblock %}
 </html>

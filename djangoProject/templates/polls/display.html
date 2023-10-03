@@ -204,9 +204,14 @@
                                     </select>
                                 </td>
                                 <td class="text-center">
-                                    <button class="delete-button" onclick="deleteTask('{{ task.Task_ID }}')">
-                                        <i class="uil-trash-alt"></i>
-                                    </button>
+                                    <form method="post" action="delete-task">
+                                        <input type="hidden" name="taskID" value='{{ task.Task_ID }}'>
+
+                                        <button class="delete-button" type="submit">
+                                            <i class="uil-trash-alt"></i>
+                                        </button>
+                                    </form>
+
                                 </td>
                             </tr>
                         </div>
@@ -226,7 +231,7 @@
             // Add a click event listener to the table rows
             document.querySelector("tbody").addEventListener("click", function (event) {
                 // Check if the click event originates from the dropdown or its descendants
-                if (event.target.closest(".progress-dropdown")) {
+                if (event.target.closest(".progress-dropdown") || (event.target.closest(".delete-button"))) {
                     // Click event is from the dropdown, do nothing
                     return;
                 }
@@ -243,32 +248,7 @@
                 }
             });
         });
-
-
         let ascendingOrder = true; // Track the current sorting order
-
-        function deleteTask(taskID) {
-            fetch('delete-task', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({taskID}),
-            })
-                .then(response => {
-                    // Handle the response here
-                    if (response.ok) {
-                        console.log('Progress updated successfully.');
-
-                    } else {
-                        console.error('Error updating progress.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
-
         function toggleOrder() {
             var table = document.getElementById('taskTable');
             var rows = Array.from(table.querySelectorAll('tr[data-progress]'));
@@ -320,6 +300,5 @@
                 });
         }
     </script>
-
     </html>
 {% endblock %}

@@ -97,31 +97,6 @@ def DisplayUsers(request):
     #     redirect('/')
     # Fetch all polls from the database
     tasks = Task.objects.all()
-
-    # Create dictionaries to organize polls by progress
-    tasks_by_progress = {
-        'TODO': [],
-        'INPROGRESS': [],
-        'REVIEW': [],
-        'DONE': [],
-    }
-
-    # Group polls by progress
-    for task in tasks:
-        print(task.Task_ID)
-        tasks_by_progress[task.Progress].append(task)
-
-    for progress in tasks_by_progress:
-        print(progress)
-        print(tasks_by_progress[progress])
-        # print(task_list)
-    for task in tasks:
-        print("www")
-        print(task.Title)
-        print(task.Progress)
-
-    # print(tasks_by_progress)
-    # return render(request, 'polls/display.html', {'polls': tasks_by_progress})
     return render(request, 'polls/display.html', {'Tasks': tasks})
 
 
@@ -130,11 +105,10 @@ def DisplayUsers(request):
 def delete_task(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            taskID = data.get('taskID')
+            taskID = request.POST.get('taskID')
             taskToDelete = Task.objects.get(Task_ID=taskID)
             taskToDelete.delete()
-            return JsonResponse({'message': 'Progress updated successfully'})
+            return redirect('polls:display')
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     return JsonResponse({'error': 'Unsupported method'}, status=405)
