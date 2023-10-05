@@ -5,9 +5,6 @@ from polls import views
 app_name = "polls"
 urlpatterns = [
     path("", views.login_view, name="default_login"),
-    # path("<int:pk>/", views.DetailView.as_view(), name="detail"),
-    # path("<int:pk>/results/", views.ResultsView.as_view(), name="results"),
-    # path("<int:question_id>/vote/", views.vote, name="vote"),
     path("display", views.DisplayUsers, name="display"),
     path("update-progress", views.update_progress, name="update_progress"),
     path("delete-task", views.delete_task, name="delete_task"),

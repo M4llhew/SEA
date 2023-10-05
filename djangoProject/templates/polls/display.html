@@ -10,10 +10,8 @@
         <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
         <link rel="stylesheet" href="/static/stylesheets/main_style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
         <title>Task Management</title>
         <style>
-            /* Include your 'STYLE' CSS here */
             body {
                 font-family: 'Poppins', sans-serif;
                 font-weight: 300;
@@ -25,7 +23,6 @@
                 background: radial-gradient(ellipse at bottom, #1B2735 0%, #12141d 100%);
             }
 
-            /* Centered container */
             .center-container {
                 display: flex;
                 justify-content: center;
@@ -34,7 +31,6 @@
                 z-index: -999;
             }
 
-            /* Container with padding */
             .container-with-padding {
                 padding: 40px;
                 background-color: #2b2e38;
@@ -43,28 +39,8 @@
                 position: fixed;
             }
 
-            {#.table-contents {#}
-            {#    background-color: #1f2029;#}
-
-
-            {#table tr {#}
-            {#    padding: 10px; /* Adjust the value as needed */#}
-            {#    background-color: #1f2029;#}
-
-            {##}
-            {#table tr:not(:last-child) {#}
-            {#    margin-bottom: 10px; /* Adjust the value as needed */#}
-
-
-            /* Apply margin to create gaps between task items */
-            {#.table-contents .task-item {#}
-            {#    margin-bottom: 10px; /* Adjust the value as needed */#}
-            {#    background-color: #1f2029;#}
-            #}#}
-
             .form-style {
                 background-color: #1f2029;
-
             }
 
             table tr {
@@ -75,38 +51,34 @@
                 color: #c4c3ca;
             }
 
-            /* Style for the button */
-            /* Style for the button */
             .table-button {
-                background-color: #ffeba7; /* Yellow background color */
-                color: #000; /* Black text color */
+                background-color: #ffeba7;
+                color: #000;
                 border: none;
-                padding: 5px 10px; /* Adjust padding as needed */
+                padding: 5px 10px;
                 border-radius: 5px;
                 cursor: pointer;
-                display: inline-flex; /* Use inline-flex to allow content inside the button */
-                align-items: center; /* Center content vertically */
-                justify-content: center; /* Center content horizontally */
-                text-decoration: none; /* Remove text decoration (underline) */
-                transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                transition: background-color 0.3s, color 0.3s;
                 float: right;
                 margin: 0px 5px 0px 0px;
                 height: 25px;
                 width: 25px;
             }
 
-
-            /* Hover effect to reverse colors */
             .table-button:hover {
-                background-color: #000; /* Black background color on hover */
-                color: #ffeba7; /* Yellow text color on hover */
+                background-color: #000;
+                color: #ffeba7;
             }
 
             .delete-button {
                 background-color: #ffeba7;
                 border-radius: 5px;
-                text-decoration: none; /* Remove text decoration (underline) */
-                color: #000; /* Black text color */
+                text-decoration: none;
+                color: #000;
                 border: none;
             }
 
@@ -136,12 +108,11 @@
 
             .container {
                 display: inline-block;
-                align-items: center; /* Vertical centering */
-                justify-content: center; /* Horizontal centering */
+                align-items: center;
+                justify-content: center;
                 text-align: center;
                 padding-left: 0;
             }
-
         </style>
     </head>
     <body>
@@ -151,7 +122,6 @@
     <div class="center-container">
         <div class="container-with-padding">
             <div class="container">
-
                 <a href="logout" class="btn inline-items">
                     <i class="uil uil-signout" style="font-size: 16px;"></i>
                     Logout
@@ -175,7 +145,7 @@
                                     <i class="uil-sort"></i>
                                 </button>
                             </th>
-                        </div><!-- colspan="2" for the "Actions" header -->
+                        </div>
                     </tr>
                     </thead>
                     <tbody>
@@ -183,11 +153,11 @@
                         <div class="form-group">
                             <tr class="form-style small-bottom-margin" data-progress="{{ task.Progress }}"
                                 data-task-id="{{ task.Task_ID }}">
-
                                 <td class="p-2">{{ task.Title }}</td>
                                 <td class="p-2">{{ task.Desc }}</td>
                                 <td class="p-2">{{ task.Alias_Assigned }}</td>
                                 <td class="p-2">
+                                    {% csrf_token %}
                                     <select class="progress-dropdown"
                                             onchange="updateProgress(this, '{{ task.Task_ID }}')">
                                         <option value="TODO" {% if task.Progress == 'TODO' %} selected {% endif %}>TODO
@@ -205,50 +175,37 @@
                                 </td>
                                 <td class="text-center">
                                     <form method="post" action="delete-task">
+                                        {% csrf_token %}
                                         <input type="hidden" name="taskID" value='{{ task.Task_ID }}'>
-
                                         <button class="delete-button" type="submit">
                                             <i class="uil-trash-alt"></i>
                                         </button>
                                     </form>
-
                                 </td>
                             </tr>
                         </div>
                     {% endfor %}
                     </tbody>
                 </table>
-
             </div>
-
-
         </div>
     </div>
     </body>
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Add a click event listener to the table rows
             document.querySelector("tbody").addEventListener("click", function (event) {
-                // Check if the click event originates from the dropdown or its descendants
                 if (event.target.closest(".progress-dropdown") || (event.target.closest(".delete-button"))) {
-                    // Click event is from the dropdown, do nothing
                     return;
                 }
-
-                // Otherwise, handle the click event here (e.g., navigate to the detail page)
-                // You can use event delegation to handle clicks on specific elements within the row
-                // For example, to navigate when clicking on the row itself:
                 if (event.target.closest("tr")) {
-                    // Get the task ID from the data attribute
                     const taskID = event.target.closest("tr").getAttribute("data-task-id");
-
-                    // Navigate to the detail page using the task ID
                     window.location.href = `/task/${taskID}/`;
                 }
             });
         });
-        let ascendingOrder = true; // Track the current sorting order
+
+        let ascendingOrder = true;
+
         function toggleOrder() {
             var table = document.getElementById('taskTable');
             var rows = Array.from(table.querySelectorAll('tr[data-progress]'));
@@ -256,8 +213,6 @@
                 var progressOrder = ['TODO', 'INPROGRESS', 'REVIEW', 'DONE'];
                 var progressA = a.getAttribute('data-progress');
                 var progressB = b.getAttribute('data-progress');
-
-                // Toggle the sorting order
                 if (ascendingOrder) {
                     return progressOrder.indexOf(progressA) - progressOrder.indexOf(progressB);
                 } else {
@@ -267,18 +222,11 @@
             rows.forEach(function (row) {
                 table.appendChild(row);
             });
-
-            // Toggle the sorting order variable
             ascendingOrder = !ascendingOrder;
         }
 
         function updateProgress(selectElement, taskId) {
-            // Get the selected value from the dropdown
             var newProgress = selectElement.value;
-
-            // Use AJAX (or fetch) to send a POST request to update the task's progress
-            // Replace this with your actual POST request code
-            // Example using fetch:
             fetch('update-progress', {
                 method: 'POST',
                 headers: {
@@ -287,10 +235,8 @@
                 body: JSON.stringify({taskId, newProgress}),
             })
                 .then(response => {
-                    // Handle the response here
                     if (response.ok) {
                         console.log('Progress updated successfully.');
-
                     } else {
                         console.error('Error updating progress.');
                     }

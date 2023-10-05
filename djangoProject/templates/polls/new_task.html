@@ -40,7 +40,7 @@
                 border: 1px solid #ccc;
                 border-radius: 3px;
                 font-size: 16px;
-                box-sizing: border-box; /* Add this property */
+                box-sizing: border-box;
             }
 
 
@@ -56,7 +56,6 @@
                 z-index: -999;
             }
 
-            /* Container with padding */
             .container-with-padding {
                 padding: 40px;
                 background-color: #2b2e38;
@@ -74,7 +73,6 @@
                 <h4 class="mt-4 mb-4 pb-3">Create a Task</h4>
                 <form method="post" action="task_create">
                     {% csrf_token %}
-
                     <div class="form-group">
                         <input type="text" class="form-style" id="title" name="Title" required maxlength="30"
                                placeholder="Title">
@@ -108,8 +106,6 @@
                         <a href="/display" class="btn mt-4">Cancel</a>
                         <button class="btn mt-4" type="submit">Create</button>
                     </div>
-
-
                 </form>
             </div>
         </div>

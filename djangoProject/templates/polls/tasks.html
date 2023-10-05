@@ -17,18 +17,17 @@
                 overflow-y: auto;
             }
 
-            /* Container with padding */
             .container-with-padding {
                 padding: 40px;
                 background-color: #2b2e38;
                 border-radius: 6px;
                 max-width: 100%;
                 width: 600px;
-                margin: 20px; /* Add margin to separate containers */
+                margin: 20px;
             }
 
             .comments-container {
-                max-height: 60vh; /* Adjust the maximum height for comments */
+                max-height: 60vh;
                 overflow-y: auto;
             }
 
@@ -49,20 +48,15 @@
                 Home
             </a>
             <h5 class="float-right inline-items pt-2">{{ task.Alias_Assigned }} - {{ task.Progress }}</h5>
-
             <h4 class="mt-3">{{ task.Task_ID }} - {{ task.Title }}</h4>
             <h5>{{ task.Desc }}</h5>
-
-
             <a href="create_comment" class="btn float-right" style="padding: 0 5px 0 5px;">
                 <i class="uil uil-comment-add" style="font-size: 25px;"></i>
             </a>
         </div>
-
         <div class="comments-container">
             {% if comments %}
                 {% for comment in comments %}
-                    <!-- Add another container around comments -->
                     <div class="container-with-padding">
                         <h4>{{ comment.Alias_Written }}</h4>
                         <p>{{ comment.Comment }}</p>
