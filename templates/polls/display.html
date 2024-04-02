@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+{% extends "polls/base.html" %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+        <link rel="stylesheet" href="/static/stylesheets/main_style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Task Management</title>
+        <style>
+            body {
+                font-family: 'Poppins', sans-serif;
+                font-weight: 300;
+                line-height: 1.7;
+                color: #ffeba7;
+                background-color: #1f2029;
+                overflow: hidden;
+                height: 100vh;
+                background: radial-gradient(ellipse at bottom, #1B2735 0%, #12141d 100%);
+            }
+
+            .center-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                z-index: -999;
+            }
+
+            .container-with-padding {
+                padding: 40px;
+                background-color: #2b2e38;
+                border-radius: 6px;
+                max-width: 100%;
+                position: fixed;
+            }
+
+            .form-style {
+                background-color: #1f2029;
+            }
+
+            table tr {
+                border-radius: 10px;
+            }
+
+            table td {
+                color: #c4c3ca;
+            }
+
+            .table-button {
+                background-color: #ffeba7;
+                color: #000;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                transition: background-color 0.3s, color 0.3s;
+                float: right;
+                margin: 0px 5px 0px 0px;
+                height: 25px;
+                width: 25px;
+            }
+
+            .table-button:hover {
+                background-color: #000;
+                color: #ffeba7;
+            }
+
+            .delete-button {
+                background-color: #ffeba7;
+                border-radius: 5px;
+                text-decoration: none;
+                color: #000;
+                border: none;
+            }
+
+            tbody tr:hover .delete-button {
+                background-color: #1B2735;
+                color: #ffeba7;
+            }
+
+            tbody tr:hover {
+                background-color: #ffeba7;
+            }
+
+            tbody tr:hover td {
+                color: #1B2735;
+            }
+
+            .btn {
+                width: fit-content;
+                height: fit-content;
+                padding: 0 5px;
+                float: left;
+            }
+
+            .inline-items {
+                display: inline-block;
+            }
+
+            .container {
+                display: inline-block;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding-left: 0;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>
+    <div class="center-container">
+        <div class="container-with-padding">
+            <div class="container">
+                <a href="logout" class="btn inline-items">
+                    <i class="uil uil-signout" style="font-size: 16px;"></i>
+                    Logout
+                </a>
+                <h4 class="mb-4 pb-3 text-center inline-items">Task Management</h4>
+            </div>
+            <div class="table-contents">
+                <table id="taskTable">
+                    <thead>
+                    <tr>
+                        <div class="p-2">
+                            <th class="p-2">Title</th>
+                            <th class="p-2">Summary</th>
+                            <th class="p-2">Assignee</th>
+                            <th class="p-2">Status</th>
+                            <th>
+                                <a class="table-button" href="{% url 'polls:new_task_form' %}">
+                                    <i class="uil-plus"></i>
+                                </a>
+                                <button class="table-button" onclick="toggleOrder()">
+                                    <i class="uil-sort"></i>
+                                </button>
+                            </th>
+                        </div>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for task in Tasks %}
+                        <div class="form-group">
+                            <tr class="form-style small-bottom-margin" data-progress="{{ task.Progress }}"
+                                data-task-id="{{ task.Task_ID }}">
+                                <td class="p-2">{{ task.Title }}</td>
+                                <td class="p-2">{{ task.Desc }}</td>
+                                <td class="p-2">{{ task.Alias_Assigned }}</td>
+                                <td class="p-2">
+                                    {% csrf_token %}
+                                    <select class="progress-dropdown"
+                                            onchange="updateProgress(this, '{{ task.Task_ID }}')">
+                                        <option value="TODO" {% if task.Progress == 'TODO' %} selected {% endif %}>TODO
+                                        </option>
+                                        <option value="INPROGRESS" {% if task.Progress == 'INPROGRESS' %}
+                                                selected {% endif %}>
+                                            INPROGRESS
+                                        </option>
+                                        <option value="REVIEW" {% if task.Progress == 'REVIEW' %} selected {% endif %}>
+                                            REVIEW
+                                        </option>
+                                        <option value="DONE" {% if task.Progress == 'DONE' %} selected {% endif %}>DONE
+                                        </option>
+                                    </select>
+                                </td>
+                                <td class="text-center">
+                                    <form method="post" action="delete-task">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="taskID" value='{{ task.Task_ID }}'>
+                                        <button class="delete-button" type="submit">
+                                            <i class="uil-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </div>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector("tbody").addEventListener("click", function (event) {
+                if (event.target.closest(".progress-dropdown") || (event.target.closest(".delete-button"))) {
+                    return;
+                }
+                if (event.target.closest("tr")) {
+                    const taskID = event.target.closest("tr").getAttribute("data-task-id");
+                    window.location.href = `/task/${taskID}/`;
+                }
+            });
+        });
+
+        let ascendingOrder = true;
+
+        function toggleOrder() {
+            var table = document.getElementById('taskTable');
+            var rows = Array.from(table.querySelectorAll('tr[data-progress]'));
+            rows.sort(function (a, b) {
+                var progressOrder = ['TODO', 'INPROGRESS', 'REVIEW', 'DONE'];
+                var progressA = a.getAttribute('data-progress');
+                var progressB = b.getAttribute('data-progress');
+                if (ascendingOrder) {
+                    return progressOrder.indexOf(progressA) - progressOrder.indexOf(progressB);
+                } else {
+                    return progressOrder.indexOf(progressB) - progressOrder.indexOf(progressA);
+                }
+            });
+            rows.forEach(function (row) {
+                table.appendChild(row);
+            });
+            ascendingOrder = !ascendingOrder;
+        }
+
+        function updateProgress(selectElement, taskId) {
+            var newProgress = selectElement.value;
+            fetch('update-progress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({taskId, newProgress}),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Progress updated successfully.');
+                    } else {
+                        console.error('Error updating progress.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+    </html>
+{% endblock %}
