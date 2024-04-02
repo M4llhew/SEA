@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+{% extends "polls/base.html" %}
+{% block title %} {{ task.Task_ID }} {% endblock %}
+{% block content %}
+    <head>
+        <link rel="stylesheet" href="/static/stylesheets/main_style.css">
+        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+        <style>
+            .center-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                max-height: 100vh;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            .container-with-padding {
+                padding: 40px;
+                background-color: #2b2e38;
+                border-radius: 6px;
+                max-width: 100%;
+                width: 600px;
+                margin: 20px;
+            }
+
+            .comments-container {
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+
+            .btn {
+                padding: 0 10px 0 10px;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="center-container">
+        <div class="container-with-padding">
+            <a href="/logout" class="btn inline-items">
+                <i class="uil uil-signout" style="font-size: 16px;"></i>
+                Logout
+            </a>
+            <a href="/display" class="btn inline-items">
+                <i class="uil uil-home" style="font-size: 16px;"></i>
+                Home
+            </a>
+            <h5 class="float-right inline-items pt-2">{{ task.Alias_Assigned }} - {{ task.Progress }}</h5>
+            <h4 class="mt-3">{{ task.Task_ID }} - {{ task.Title }}</h4>
+            <h5>{{ task.Desc }}</h5>
+            <a href="create_comment" class="btn float-right" style="padding: 0 5px 0 5px;">
+                <i class="uil uil-comment-add" style="font-size: 25px;"></i>
+            </a>
+        </div>
+        <div class="comments-container">
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="container-with-padding">
+                        <h4>{{ comment.Alias_Written }}</h4>
+                        <p>{{ comment.Comment }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments.</p>
+            {% endif %}
+        </div>
+    </div>
+    </body>
+{% endblock %}
+</html>

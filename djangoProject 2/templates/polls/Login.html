@@ -1,0 +1,140 @@
+<!doctype html>
+{% extends "polls/base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+    <html lang="en">
+    <head>
+        <title>Login</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.9/css/unicons.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/stylesheets/main_style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <style>
+            .messages {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 9999;
+            }
+
+            .messages ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .messages li {
+                padding: 10px;
+                width: 100%;
+                text-align: center;
+                color: white;
+            }
+
+            .success {
+                background-color: #4CAF50;
+            }
+
+            .error {
+                background-color: #f44336;
+            }
+
+        </style>
+    </head>
+    <body>
+    <div class="section">
+        <div class="container">
+            <div class="row full-height justify-content-center">
+                <div class="col-12 text-center align-self-center py-5">
+                    <div class="section pb-5 pt-5 pt-sm-2 text-center">
+                        {% if messages %}
+                            <div class="messages">
+                                <ul class="messages-list">
+                                    {% for message in messages %}
+                                        <li{% if message.tags %}
+                                            class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <script>
+                                $(document).ready(function () {
+                                    setTimeout(function () {
+                                        $('.messages').fadeOut('slow');
+                                    }, 7500);
+                                });
+                            </script>
+                        {% endif %}
+                        <h6 class="mb-0 pb-3"><span>Log In </span><span>Sign Up</span></h6>
+                        <input class="checkbox" type="checkbox" id="reg-log" name="reg-log"/>
+                        <label for="reg-log"></label>
+                        <div class="card-3d-wrap mx-auto">
+                            <div class="card-3d-wrapper">
+                                <div class="card-front">
+
+                                    <div class="center-wrap">
+                                        <div class="section text-center">
+                                            <h4 class="mb-4 pb-3">Log In</h4>
+                                            <form method="post" action="/login/">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <input type="text" class="form-style" placeholder="Username"
+                                                           name="username">
+                                                    <i class="input-icon uil uil-user"></i>
+
+                                                </div>
+                                                <div class="form-group mt-2">
+                                                    <input type="password" class="form-style" placeholder="Password"
+                                                           name="password">
+                                                    <i class="input-icon uil uil-lock-alt"></i>
+                                                </div>
+                                                <button type="submit" class="btn mt-4">Login</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-back">
+                                    <div class="center-wrap">
+                                        <div class="section text-center">
+                                            <h4 class="mb-3 pb-3">Sign Up</h4>
+                                            <form method="post" action="/user_create">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <input type="text" class="form-style" name="first_name"
+                                                           placeholder="First Name:">
+                                                    <i class="input-icon uil uil-user"></i>
+                                                </div>
+                                                <div class="form-group mt-2">
+                                                    <input type="text" class="form-style" name="last_name"
+                                                           placeholder="Last Name:">
+                                                    <i class="input-icon uil uil-user"></i>
+                                                </div>
+                                                <div class="form-group mt-2">
+                                                    <input type="text" class="form-style" name="username"
+                                                           placeholder="Username:">
+                                                    <i class="input-icon uil uil-user"></i>
+                                                </div>
+                                                <div class="form-group mt-2">
+                                                    <input type="password" class="form-style" name="password"
+                                                           placeholder="Password">
+                                                    <i class="input-icon uil uil-lock-alt"></i>
+                                                </div>
+                                                <button type="submit" class="btn mt-4">Register</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+    </html>
+{% endblock %}

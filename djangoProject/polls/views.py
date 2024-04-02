@@ -135,18 +135,22 @@ def task_create(request):
 
 
 # Checks if the user exists if not creates the user and provides a success message
-@login_required
 def user_create(request):
+    print("hello")
     if request.method == "POST":
         form = UserForm(request.POST)
+        print("2")
         if form.is_valid():
+            print("3")
             user = form.save(commit=False)
             user.password = form.cleaned_data['password']
             user.save()
             messages.success(request, 'Registration Successful')
         else:
+            print("4")
             for field, errors in form.errors.items():
                 for error in errors:
+                    print(error)
                     messages.error(request, f'Error in {field}: {error}')
     return render(request, 'polls/Login.html')
 
