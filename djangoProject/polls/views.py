@@ -85,6 +85,7 @@ class UserForm(forms.ModelForm):
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
+        print(request.POST.get('csrfmiddlewaretoken'))
         if form.is_valid():
             username = request.POST.get('username')
             password = request.POST.get('password')
@@ -99,6 +100,8 @@ def login_view(request):
                 for error in errors:
                     messages.error(request, f'Error in {field}: {error}')
     return render(request, 'polls/Login.html')
+
+
 
 
 # Ensures all fields are filled and creates a comment for the specific task that the user is in, if not returns a suitable error.

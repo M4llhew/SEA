@@ -7,13 +7,13 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_and_deploy:
 
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.11]
+        python-version: [3.10]
 
     steps:
     - uses: actions/checkout@v3
@@ -28,3 +28,12 @@ jobs:
     - name: Run Tests
       run: |
         cd djangoProject && python manage.py test
+    - name: Build Docker image
+      run: |
+        docker build -t m4llhew/test2:latest .
+        docker push m4llhew/test2:latest
+    - name: Deploy to Render
+      uses: renderapp/action@v1
+      with:
+        args: 'deploy --env <your-render-environment-name>'
+
